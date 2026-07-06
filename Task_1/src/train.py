@@ -26,6 +26,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.decomposition import PCA
 from sklearn.metrics import (
     accuracy_score,
     precision_recall_fscore_support,
@@ -185,6 +186,56 @@ def train_and_evaluate():
     
     print(f"\n🏆 Best Model Selected: {best_model_name} (F1-Score: {best_row['F1-Score (Weighted)']:.4f})")
     
+    # --- PCA Dimensionality Reduction ---
+    print("\n--- Running PCA Dimensionality Reduction ---")
+    
+    # Combine train + test scaled data for full-dataset PCA visualization
+    X_all_scaled = np.vstack([X_train, X_test])
+    y_all = np.concatenate([y_train, y_test])
+    
+    pca = PCA(n_components=2, random_state=42)
+    X_pca = pca.fit_transform(X_all_scaled)
+    
+    explained = pca.explained_variance_ratio_ * 100
+    print(f"PCA Variance Explained: PC1={explained[0]:.1f}%, PC2={explained[1]:.1f}%")
+    
+    # Build per-class coordinate lists for the web app
+    pca_clusters = {}
+    for code, name in enumerate(class_names):
+        mask = (y_all == code)
+        pca_clusters[name] = {
+            "x": X_pca[mask, 0].tolist(),
+            "y": X_pca[mask, 1].tolist()
+        }
+    
+    # Generate static PCA scatter plot
+    colors = ["#00f5d4", "#f72585", "#f8961e"]
+    plt.figure(figsize=(10, 7), facecolor="#0d0d1a")
+    ax = plt.gca()
+    ax.set_facecolor("#0d0d1a")
+    for code, name in enumerate(class_names):
+        mask = (y_all == code)
+        ax.scatter(
+            X_pca[mask, 0], X_pca[mask, 1],
+            label=name, color=colors[code],
+            alpha=0.85, edgecolors="white", linewidths=0.4, s=80
+        )
+    ax.set_title(
+        f"PCA Cluster Visualization (PC1={explained[0]:.1f}%, PC2={explained[1]:.1f}%)",
+        color="white", fontsize=14, pad=15
+    )
+    ax.set_xlabel("Principal Component 1", color="#aaaacc")
+    ax.set_ylabel("Principal Component 2", color="#aaaacc")
+    ax.tick_params(colors="#aaaacc")
+    for spine in ax.spines.values():
+        spine.set_edgecolor("#333355")
+    legend = ax.legend(facecolor="#1a1a2e", labelcolor="white", edgecolor="#333355")
+    plt.tight_layout()
+    pca_path = "reports/figures/pca_clusters.png"
+    plt.savefig(pca_path, dpi=300, bbox_inches='tight', facecolor="#0d0d1a")
+    plt.close()
+    print(f"Saved PCA cluster plot to: {pca_path}")
+    
     # Save the complete pipeline/metadata as a single joblib file
     model_save_path = "models/best_model.pkl"
     pipeline_data = {
@@ -194,6 +245,9 @@ def train_and_evaluate():
         "label_encoder": label_encoder,
         "feature_names": feature_names,
         "class_names": class_names,
+        "pca": pca,
+        "pca_clusters": pca_clusters,
+        "pca_explained": explained.tolist(),
         "performance": {
             "accuracy": best_row["Test Accuracy"],
             "f1_score": best_row["F1-Score (Weighted)"]
