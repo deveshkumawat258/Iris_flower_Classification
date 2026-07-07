@@ -1,6 +1,6 @@
 """
 Module: predict.py
-Author: Antigravity AI
+Author: Devesh Kumawat
 Purpose: Load the trained Iris classification model and perform predictions on new inputs.
          Supports both command-line arguments and interactive shell input.
 Date: 2026-07-06

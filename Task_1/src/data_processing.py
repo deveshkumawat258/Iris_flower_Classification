@@ -1,6 +1,6 @@
 """
 Module: data_processing.py
-Author: Antigravity AI
+Author: Devesh Kumawat
 Purpose: Data loading, cleaning, scaling, and preprocessing functions for the Iris dataset.
 Date: 2026-07-06
 """

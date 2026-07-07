@@ -1,6 +1,6 @@
 """
 Module: train.py
-Author: Antigravity AI
+Author: Devesh Kumawat
 Purpose: Train and evaluate multiple Machine Learning classifiers on the Iris dataset.
          Performs hyperparameter tuning, saves performance figures, and serializes the best model.
 Date: 2026-07-06

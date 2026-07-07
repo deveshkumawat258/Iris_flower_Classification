@@ -1,6 +1,6 @@
 """
 Module: app.py
-Author: Antigravity AI
+Author: Devesh Kumawat
 Purpose: FastAPI web application for the Iris Flower Classifier.
          Serves a premium dark-mode glassmorphic interactive dashboard with
          real-time PCA cluster visualization and live predictions via sliders.
